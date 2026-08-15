@@ -1,0 +1,12 @@
+﻿R4Build provenance
+==================
+
+Fachliche Quelle:
+- Eingefrorener Altprojekt-Commit: 259cbfac272c47ac1a7828de973512d17b29ae10
+- Urspruenglicher Pfad: Code/System/Software/R4Code/Modules/R4Build
+
+Transfer in R4OS 0.64.18:
+- Modulquellen und Manifest wurden bytegenau aus dem eingefrorenen Commit
+  uebernommen.
+- Externe Buildmodule werden ueber benannte Pfade explizit gepinnter Pakete
+  aufgeloest; der Fachcode blieb unveraendert.

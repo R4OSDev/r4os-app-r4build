@@ -1,0 +1,28 @@
+.{
+    .name = .r4os_r4build,
+    .version = "0.1.2",
+    .fingerprint = 0xd14d21621d1d0e41,
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{
+        .r4os_sdk = .{
+            .url = "https://github.com/R4OSDev/r4os-sdk/archive/418f49a795bcff0177fa622dddab57262bf503ed.tar.gz",
+            .hash = "r4os_sdk-0.64.17-NnPzAkJv7gBwJAoIcSZyXzHimQXv3t6e-4EyuzU2ZoAn",
+        },
+        .r4os_r4cc = .{
+            .url = "https://github.com/R4OSDev/r4os-app-r4cc/archive/58d6e4ca7e318d29e653772e0c8a1454c67481d9.tar.gz",
+            .hash = "r4os_r4cc-0.1.1-E2UJwBO7AAADnzijT-_cs4dYnnjU3fql-D18EY1YoVGy",
+        },
+        .r4os_r4pack = .{
+            .url = "https://github.com/R4OSDev/r4os-app-r4pack/archive/4658316474124812b5b1426234e81dc756c2c5ea.tar.gz",
+            .hash = "r4os_r4pack-0.1.2-tbCoZpwHAQCFskPkrPf04x4Qhrzk9QuYr-TpC7lBoK4E",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "module.R4MF",
+        "README.txt",
+        "PROVENANCE.txt",
+    },
+}

@@ -1,0 +1,16 @@
+R4OS_MODULE_MANIFEST=2
+KIND=R4X
+NAME=R4BUILD
+VERSION=0.1.2
+LANGUAGE=Zig
+SOURCE=src/main.zig
+ENTRY_MODE=app
+APP_CLASS=console
+TARGET=/SOFTWARE/R4CODE/R4BUILD.R4X
+IMAGE_SCOPE=full
+PACKAGE=R4CODE
+ZIG_MODULE=r4code_cc_core:../../Shared/r4cc_core.zig
+ZIG_MODULE=r4code_pack_core:../../Shared/r4pack_core.zig
+IMPORT=R4SYS:Query:1
+META=memory.profile=build-tool
+META=memory.tag=r4build

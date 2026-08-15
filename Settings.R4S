@@ -1,0 +1,12 @@
+﻿# R4BUILD repository path mappings
+# Every relative value starts at this repository root, except ZIG_ROOT which
+# starts at DEVKIT_ROOT. Any value may instead be absolute. No quotes.
+
+SDK_ROOT=../../SDK
+CONTRACT_ROOT=../../Contract
+R4CC_ROOT=../R4CC
+R4PACK_ROOT=../R4Pack
+
+DEVKIT_ROOT=../../../DevKit
+ARTIFACTS_ROOT=../../../Artifacts/Modules/R4Build
+ZIG_ROOT=Toolchains/Zig
