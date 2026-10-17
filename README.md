@@ -4,7 +4,7 @@
 
 ## Package
 
-- Version: `0.1.2`
+- Version: `0.1.3`
 - Image target: `/SOFTWARE/R4CODE/R4BUILD.R4X`
 - Image scope: `full`
 - Canonical project manifest: `module.R4MF`
