@@ -242,6 +242,33 @@ const App = struct {
             }
         }
 
+        if (project.language.? == .rust) {
+            var cargo_path: [path_capacity]u8 = .{0} ** path_capacity;
+            if (!buildPathText(spanZ(project_dir[0..]), "Cargo.toml", &cargo_path)) return null;
+            const cargo = self.readFile(spanZ(cargo_path[0..]), self.plan_buffer[0..]) orelse {
+                self.logLine("RustCargoManifestMissing");
+                return null;
+            };
+            _ = r4os.r4mf.rust_project.parseCargo(project.sources[0], cargo) catch |err| {
+                self.logPair("Rust Cargo invalid", @errorName(err));
+                return null;
+            };
+            if (!buildPathText(spanZ(project_dir[0..]), "Cargo.lock", &cargo_path)) return null;
+            const lock = self.readFile(spanZ(cargo_path[0..]), self.plan_buffer[0..]) orelse {
+                self.logLine("RustCargoLockMissing");
+                return null;
+            };
+            if (lock.len == 0) return null;
+            for (r4os.r4mf.rust_project.forbidden_inputs) |forbidden| {
+                if (std.mem.eql(u8, forbidden, project.sources[0])) continue;
+                if (!buildPathText(spanZ(project_dir[0..]), forbidden, &cargo_path)) return null;
+                if (self.fileExists(spanZ(cargo_path[0..])) or self.dirExists(spanZ(cargo_path[0..]))) {
+                    self.logPair("RustProjectOverrideOrImplicitTarget", forbidden);
+                    return null;
+                }
+            }
+        }
+
         self.logLine("export: R4XStart derived OK");
         self.logImportCount(project.imports.len);
         return if (ok) project else null;
@@ -256,6 +283,11 @@ const App = struct {
     }
 
     fn checkCapability(self: *App, project: r4os.r4mf.Manifest) bool {
+        if (project.language.? == .rust) {
+            const decision = r4os.r4mf.capabilities.rust(project.kind.text(), project.entry_mode.?.text(), null, .native_r4os);
+            self.logPair(decision.code, decision.reason);
+            return false;
+        }
         if (project.language.? != .c) {
             self.logLine("capability: inside-R4OS compiler supports LANGUAGE=C only");
             return false;
