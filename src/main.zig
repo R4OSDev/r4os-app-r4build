@@ -54,7 +54,7 @@ const App = struct {
 
     fn run(self: *App, args: []const u8) i32 {
         self.resetLog();
-        self.logLine("R4BUILD 0.58.33");
+        self.logLine("R4BUILD");
         if (args.len == 0 or equalsIgnoreCase(args, "HELP") or equalsIgnoreCase(args, "/?")) {
             self.printUsage();
             return 0;
@@ -106,6 +106,11 @@ const App = struct {
         self.logLine("validate result: OK");
         if (mode == .validate) return 0;
 
+        if (project.kind != .r4x) {
+            _ = self.checkCapability(project);
+            self.logLine("plan/build requires the host SDK for this module role");
+            return 3;
+        }
         if (!self.logPlan(project)) {
             self.logLine("plan result: FAILED");
             return 1;
@@ -218,7 +223,7 @@ const App = struct {
 
         self.logPair("name", project.name);
         self.logPair("language", project.language.?.text());
-        self.logPair("build profile", r4os.r4mf.buildProfileName(project.language.?, project.entry_mode.?, project.app_class.?));
+        self.logPair("build profile", if (project.kind == .r4x) r4os.r4mf.buildProfileName(project.language.?, project.entry_mode.?, project.app_class.?) else project.kind.text());
         self.logPair("target", project.target);
 
         var project_dir: [path_capacity]u8 = .{0} ** path_capacity;
@@ -249,10 +254,8 @@ const App = struct {
                 self.logLine("RustCargoManifestMissing");
                 return null;
             };
-            _ = r4os.r4mf.rust_project.parseCargo(project.sources[0], cargo) catch |err| {
-                self.logPair("Rust Cargo invalid", @errorName(err));
-                return null;
-            };
+            if (cargo.len == 0) return null;
+            self.logLine("Rust Cargo target/graph validation belongs to host Cargo; native validation checks declared files only");
             if (!buildPathText(spanZ(project_dir[0..]), "Cargo.lock", &cargo_path)) return null;
             const lock = self.readFile(spanZ(cargo_path[0..]), self.plan_buffer[0..]) orelse {
                 self.logLine("RustCargoLockMissing");
@@ -269,7 +272,7 @@ const App = struct {
             }
         }
 
-        self.logLine("export: R4XStart derived OK");
+        self.logLine(if (project.kind == .r4x) "export: R4XStart derived OK" else "exports: host owner contract required");
         self.logImportCount(project.imports.len);
         return if (ok) project else null;
     }
@@ -283,17 +286,16 @@ const App = struct {
     }
 
     fn checkCapability(self: *App, project: r4os.r4mf.Manifest) bool {
-        if (project.language.? == .rust) {
-            const decision = r4os.r4mf.capabilities.rust(project.kind.text(), project.entry_mode.?.text(), null, .native_r4os);
+        const decision = r4os.r4mf.capabilities.query(.{
+            .language = project.language.?.text(),
+            .kind = project.kind.text(),
+            .entry_mode = if (project.entry_mode) |entry| entry.text() else null,
+            .app_class = if (project.app_class) |class| class.text() else null,
+            .role = if (project.module_role) |role| role.text() else null,
+            .execution = .native_r4os,
+        });
+        if (!decision.supported) {
             self.logPair(decision.code, decision.reason);
-            return false;
-        }
-        if (project.language.? != .c) {
-            self.logLine("capability: inside-R4OS compiler supports LANGUAGE=C only");
-            return false;
-        }
-        if (project.entry_mode.? != .app) {
-            self.logLine("capability: inside-R4OS compiler supports ENTRY_MODE=app only");
             return false;
         }
         if (project.sources.len != 1) {
